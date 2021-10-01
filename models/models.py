@@ -12,10 +12,18 @@ class billable_timesheet(models.Model):
 		if not self.env.user.has_group('project.group_project_manager'):
 			raise UserError("You must be project manager in order to change %s"%field)
 		if field and field=='time_billable':
+			if self.time_billable > self.unit_amount:
+				raise UserError("Time Billable cannot be bigger than logged hours!")
+			if self.time_billable == 0:
+				self.percentage_billable = 0
 			if self.time_billable and self.unit_amount:
 				self.percentage_billable = 100*(self.time_billable/self.unit_amount)
 
 		if field and field=='percentage_billable':
+			if self.percentage_billable > 100:
+				raise UserError("Percentage billable cannot be bigger than 100%!")
+			if self.percentage_billable == 0:
+				self.time_billable = 0
 			if self.percentage_billable and self.unit_amount:
 				self.time_billable = (self.unit_amount*self.percentage_billable)/100
 
